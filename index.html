@@ -13,22 +13,22 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background-color: #1a1a2e; /* Dark purple background */
-            font-family: 'Press Start 2P', cursive; /* Retro game font */
+            background-color: #1a1a2e;
+            font-family: 'Press Start 2P', cursive;
             color: #fff;
-            overflow: hidden; /* Prevent scrolling on mobile */
+            overflow: hidden;
         }
 
         .game-container {
-            background-color: #2e004a; /* Slightly lighter purple for container */
+            background-color: #2e004a;
             padding: 20px;
             border-radius: 15px;
-            box-shadow: 0 0 30px rgba(173, 216, 230, 0.5); /* Soft blue neon glow */
+            box-shadow: 0 0 30px rgba(173, 216, 230, 0.5);
             text-align: center;
-            border: 2px solid #8a2be2; /* Blue violet border */
+            border: 2px solid #8a2be2;
             position: relative;
-            max-width: 90vw; /* Responsive width */
-            max-height: 90vh; /* Responsive height */
+            max-width: 90vw;
+            max-height: 90vh;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -36,28 +36,35 @@
         }
 
         h1 {
-            color: #00ffff; /* Cyan neon glow */
+            color: #00ffff;
             text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
             margin-bottom: 15px;
             font-size: 2.5em;
         }
 
-        canvas {
-            background-color: #000;
-            border: 3px solid #f0f; /* Pink neon border */
-            box-shadow: 0 0 15px #f0f, 0 0 25px #f0f; /* Pink neon glow */
-            display: block;
-            margin: 0 auto 15px auto;
-            width: 100%; /* Make canvas responsive */
-            max-width: 400px; /* Max size for canvas */
-            height: auto;
+        #scores-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 15px;
         }
 
-        #score {
-            font-size: 1.5em;
-            color: #0f0; /* Green neon glow */
+        #score, #high-score {
+            font-size: 1.2em;
+            color: #0f0;
             text-shadow: 0 0 5px #0f0, 0 0 10px #0f0;
-            margin-bottom: 20px;
+        }
+
+        canvas {
+            background-color: #000;
+            border: 3px solid #f0f;
+            box-shadow: 0 0 15px #f0f, 0 0 25px #f0f;
+            display: block;
+            margin: 0 auto 15px auto;
+            width: 100%;
+            max-width: 400px;
+            height: auto;
         }
 
         /* Game Over Screen */
@@ -77,7 +84,7 @@
         }
 
         #game-over-screen h2 {
-            color: #ff0000; /* Red neon glow */
+            color: #ff0000;
             text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
             font-size: 3em;
             margin-bottom: 10px;
@@ -90,7 +97,7 @@
         }
 
         #restart-button {
-            background-color: #00ffff; /* Cyan button */
+            background-color: #00ffff;
             color: #1a1a2e;
             padding: 15px 30px;
             border: none;
@@ -102,18 +109,13 @@
             font-family: 'Press Start 2P', cursive;
         }
 
-        #restart-button:hover {
-            background-color: #00e6e6;
-            box-shadow: 0 0 15px #00e6e6, 0 0 25px #00e6e6;
-        }
-
         .hidden {
             display: none !important;
         }
 
         /* Mobile Controls */
         .mobile-controls {
-            display: none; /* Hide by default */
+            display: none;
             margin-top: 20px;
             gap: 10px;
             justify-content: center;
@@ -141,11 +143,6 @@
             align-items: center;
         }
 
-        .control-btn:hover {
-            background-color: #9370db;
-            box-shadow: 0 0 15px #9370db;
-        }
-
         .left-right-controls {
             display: flex;
             gap: 10px;
@@ -157,19 +154,10 @@
             width: 150px;
         }
 
-
         /* Responsive Design */
         @media (max-width: 600px) {
             .mobile-controls {
-                display: flex; /* Show mobile controls on small screens */
-            }
-
-            .game-container {
-                padding: 15px;
-            }
-
-            canvas {
-                margin-bottom: 10px;
+                display: flex;
             }
         }
 
@@ -177,13 +165,23 @@
     </style>
 </head>
 <body>
+    <audio id="eatSound" src="eat.mp3" preload="auto"></audio>
+    <audio id="gameOverSound" src="game_over.mp3" preload="auto"></audio>
+    
     <div class="game-container">
         <h1>Neon Snake</h1>
+        
+        <div id="scores-container">
+            <div id="score">Score: 0</div>
+            <div id="high-score">High Score: 0</div>
+        </div>
+
         <canvas id="gameCanvas" width="400" height="400"></canvas>
-        <div id="score">Score: 0</div>
+        
         <div id="game-over-screen" class="hidden">
-            <h2>Game Over!</h2>
+            <h2>GAME OVER!</h2>
             <p>Final Score: <span id="final-score">0</span></p>
+            <p id="new-record-message" class="hidden" style="color:#00ffff; text-shadow: 0 0 5px #00ffff;">NEW HIGH SCORE!</p>
             <button id="restart-button">Restart Game</button>
         </div>
         
@@ -203,9 +201,13 @@
             const canvas = document.getElementById('gameCanvas');
             const ctx = canvas.getContext('2d');
             const scoreDisplay = document.getElementById('score');
+            const highScoreDisplay = document.getElementById('high-score');
             const gameOverScreen = document.getElementById('game-over-screen');
             const finalScoreDisplay = document.getElementById('final-score');
+            const newRecordMessage = document.getElementById('new-record-message');
             const restartButton = document.getElementById('restart-button');
+            const eatSound = document.getElementById('eatSound');
+            const gameOverSound = document.getElementById('gameOverSound');
 
             // Mobile controls
             const upBtn = document.getElementById('up-btn');
@@ -214,23 +216,30 @@
             const rightBtn = document.getElementById('right-btn');
 
             const gridSize = 20; 
-            let snake = [{ x: 10, y: 10 }]; 
+            let snake = []; 
             let food = {}; 
             let direction = 'right'; 
             let score = 0;
+            let highScore = localStorage.getItem('snakeHighScore') || 0;
             let gameInterval;
             let gameSpeed = 150; 
 
-            // Colors for snake, food and neon glows
-            const SNAKE_COLOR = '#00ff00'; // Green
+            // Colors
+            const SNAKE_COLOR = '#00ff00';
             const SNAKE_GLOW_COLOR = 'rgba(0, 255, 0, 0.5)';
-            const FOOD_COLOR = '#ff00ff'; // Pink
+            const FOOD_COLOR = '#ff00ff';
             const FOOD_GLOW_COLOR = 'rgba(255, 0, 255, 0.5)';
+
+            // --- Sound Helpers ---
+            function playSound(soundElement) {
+                soundElement.currentTime = 0;
+                soundElement.play().catch(e => console.log("Sound playback blocked by browser:", e));
+            }
 
             // --- Game Functions ---
 
             function draw() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height); 
 
                 // Draw food with neon glow
                 ctx.fillStyle = FOOD_GLOW_COLOR;
@@ -239,7 +248,7 @@
                 ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
                 ctx.fillStyle = FOOD_COLOR;
                 ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
-                ctx.shadowBlur = 0; // Reset shadow
+                ctx.shadowBlur = 0; 
 
                 // Draw snake with neon glow
                 snake.forEach(segment => {
@@ -249,7 +258,7 @@
                     ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
                     ctx.fillStyle = SNAKE_COLOR;
                     ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
-                    ctx.shadowBlur = 0; // Reset shadow
+                    ctx.shadowBlur = 0; 
                 });
             }
 
@@ -271,7 +280,7 @@
                         break;
                 }
 
-                // Check for collision with walls or self
+                // Collision check
                 if (
                     head.x < 0 || head.x >= canvas.width / gridSize ||
                     head.y < 0 || head.y >= canvas.height / gridSize ||
@@ -281,21 +290,22 @@
                     return;
                 }
 
-                snake.unshift(head); // Add new head
+                snake.unshift(head); 
 
-                // Check for food
+                // Food check
                 if (head.x === food.x && head.y === food.y) {
                     score++;
                     scoreDisplay.textContent = `Score: ${score}`;
+                    playSound(eatSound); // Play eat sound
                     generateFood();
-                    // Optional: Increase speed gradually
-                    if (gameSpeed > 50) { // Don't get too fast
+                    // Speed increase
+                    if (gameSpeed > 50) {
                         gameSpeed -= 5;
                         clearInterval(gameInterval);
                         gameInterval = setInterval(gameLoop, gameSpeed);
                     }
                 } else {
-                    snake.pop(); // Remove tail if no food eaten
+                    snake.pop(); 
                 }
             }
 
@@ -317,7 +327,7 @@
                 // Ensure food does not spawn on snake
                 snake.forEach(segment => {
                     if (segment.x === food.x && segment.y === food.y) {
-                        generateFood(); // Regenerate if collision
+                        generateFood();
                     }
                 });
             }
@@ -333,7 +343,9 @@
                 score = 0;
                 gameSpeed = 150;
                 scoreDisplay.textContent = `Score: 0`;
+                newRecordMessage.classList.add('hidden');
                 gameOverScreen.classList.add('hidden');
+                highScoreDisplay.textContent = `High Score: ${highScore}`;
                 generateFood();
                 if (gameInterval) clearInterval(gameInterval);
                 gameInterval = setInterval(gameLoop, gameSpeed);
@@ -341,7 +353,17 @@
 
             function endGame() {
                 clearInterval(gameInterval);
+                playSound(gameOverSound); // Play game over sound
                 finalScoreDisplay.textContent = score;
+                
+                // High Score Logic
+                if (score > highScore) {
+                    highScore = score;
+                    localStorage.setItem('snakeHighScore', highScore);
+                    highScoreDisplay.textContent = `High Score: ${highScore}`;
+                    newRecordMessage.classList.remove('hidden');
+                }
+
                 gameOverScreen.classList.remove('hidden');
             }
 
