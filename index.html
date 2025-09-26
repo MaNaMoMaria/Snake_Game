@@ -165,8 +165,8 @@
     </style>
 </head>
 <body>
-    <audio id="eatSound" src="eat.mp3" preload="auto"></audio>
-    <audio id="gameOverSound" src="game_over.mp3" preload="auto"></audio>
+    <audio id="eatSound" src="data:audio/mp3;base64,L3VzZXIvYmluL2VudiBweXRob24KCmRlZiBiYXNlNjRfZW5jb2RlKGZpbGVwYXRoKToKICAgIHdpdGggb3BlbihmaWxlcGF0aCwgJ2JpZCcgKSAgYXMgZmlsZToKICAgICAgICByZXR1cm4gYmFzZTY0LmI2NChmaWxlLnJlYWQoKSkuc3RyaXAoKQoKaW1wb3J0IGJhc2U2NAoKcHJpbnQgYmFzZTY0X2VuY29kZSgnZWF0Lm1wMycp" preload="auto"></audio>
+    <audio id="gameOverSound" src="data:audio/mp3;base64,L3VzZXIvYmluL2VudiBweXRob24KCmRlZiBiYXNlNjRfZW5jb2RlKGZpbGVwYXRoKToKICAgIHdpdGggb3BlbihmaWxlcGF0aCwgJ2JpZCcgKSAgYXMgaW8uQnl0ZXNTdHJlYW06CiAgICAgICAgcmV0dXJuIGJhc2U2NC5iNjRkZWNvZGUoZmlsZS5yZWFkKCkpLnN0cmlwKCkKCnByaW50IGJhc2U2NF9lbmNvZGUoJ2dhbWVfb3Zlci5tcDMnKQoKaW1wb3J0IGJhc2U2NAo=" preload="auto"></audio>
     
     <div class="game-container">
         <h1>Neon Snake</h1>
@@ -222,7 +222,9 @@
             let score = 0;
             let highScore = localStorage.getItem('snakeHighScore') || 0;
             let gameInterval;
-            let gameSpeed = 150; 
+            const INITIAL_SPEED = 200; // Slower start (200ms)
+            const SPEED_STEP = 15; // Speed increase per food
+            let gameSpeed = INITIAL_SPEED; 
 
             // Colors
             const SNAKE_COLOR = '#00ff00';
@@ -296,11 +298,12 @@
                 if (head.x === food.x && head.y === food.y) {
                     score++;
                     scoreDisplay.textContent = `Score: ${score}`;
-                    playSound(eatSound); // Play eat sound
+                    playSound(eatSound); 
                     generateFood();
-                    // Speed increase
-                    if (gameSpeed > 50) {
-                        gameSpeed -= 5;
+                    
+                    // Speed increase logic (gradual increase like old Nokia games)
+                    if (gameSpeed > 50) { 
+                        gameSpeed -= SPEED_STEP;
                         clearInterval(gameInterval);
                         gameInterval = setInterval(gameLoop, gameSpeed);
                     }
@@ -341,7 +344,7 @@
                 snake = [{ x: 10, y: 10 }];
                 direction = 'right';
                 score = 0;
-                gameSpeed = 150;
+                gameSpeed = INITIAL_SPEED;
                 scoreDisplay.textContent = `Score: 0`;
                 newRecordMessage.classList.add('hidden');
                 gameOverScreen.classList.add('hidden');
@@ -353,7 +356,7 @@
 
             function endGame() {
                 clearInterval(gameInterval);
-                playSound(gameOverSound); // Play game over sound
+                playSound(gameOverSound); 
                 finalScoreDisplay.textContent = score;
                 
                 // High Score Logic
