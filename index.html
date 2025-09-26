@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Snake Game</title>
+    
+    <style>
+        /* CSS Styles */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #1a1a2e; /* Dark purple background */
+            font-family: 'Press Start 2P', cursive; /* Retro game font */
+            color: #fff;
+            overflow: hidden; /* Prevent scrolling on mobile */
+        }
+
+        .game-container {
+            background-color: #2e004a; /* Slightly lighter purple for container */
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(173, 216, 230, 0.5); /* Soft blue neon glow */
+            text-align: center;
+            border: 2px solid #8a2be2; /* Blue violet border */
+            position: relative;
+            max-width: 90vw; /* Responsive width */
+            max-height: 90vh; /* Responsive height */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 {
+            color: #00ffff; /* Cyan neon glow */
+            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+            margin-bottom: 15px;
+            font-size: 2.5em;
+        }
+
+        canvas {
+            background-color: #000;
+            border: 3px solid #f0f; /* Pink neon border */
+            box-shadow: 0 0 15px #f0f, 0 0 25px #f0f; /* Pink neon glow */
+            display: block;
+            margin: 0 auto 15px auto;
+            width: 100%; /* Make canvas responsive */
+            max-width: 400px; /* Max size for canvas */
+            height: auto;
+        }
+
+        #score {
+            font-size: 1.5em;
+            color: #0f0; /* Green neon glow */
+            text-shadow: 0 0 5px #0f0, 0 0 10px #0f0;
+            margin-bottom: 20px;
+        }
+
+        /* Game Over Screen */
+        #game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            z-index: 10;
+        }
+
+        #game-over-screen h2 {
+            color: #ff0000; /* Red neon glow */
+            text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        #game-over-screen p {
+            font-size: 1.8em;
+            color: #fff;
+            margin-bottom: 30px;
+        }
+
+        #restart-button {
+            background-color: #00ffff; /* Cyan button */
+            color: #1a1a2e;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            cursor: pointer;
+            box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        #restart-button:hover {
+            background-color: #00e6e6;
+            box-shadow: 0 0 15px #00e6e6, 0 0 25px #00e6e6;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Mobile Controls */
+        .mobile-controls {
+            display: none; /* Hide by default */
+            margin-top: 20px;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap; 
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .control-btn {
+            background-color: #8a2be2;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 15px 20px;
+            font-size: 1.5em;
+            cursor: pointer;
+            box-shadow: 0 0 10px #8a2be2;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            flex-shrink: 0; 
+            width: 70px; 
+            height: 70px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .control-btn:hover {
+            background-color: #9370db;
+            box-shadow: 0 0 15px #9370db;
+        }
+
+        .left-right-controls {
+            display: flex;
+            gap: 10px;
+            width: 100%; 
+            justify-content: center;
+        }
+
+        #up-btn, #down-btn {
+            width: 150px;
+        }
+
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .mobile-controls {
+                display: flex; /* Show mobile controls on small screens */
+            }
+
+            .game-container {
+                padding: 15px;
+            }
+
+            canvas {
+                margin-bottom: 10px;
+            }
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Neon Snake</h1>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div id="score">Score: 0</div>
+        <div id="game-over-screen" class="hidden">
+            <h2>Game Over!</h2>
+            <p>Final Score: <span id="final-score">0</span></p>
+            <button id="restart-button">Restart Game</button>
+        </div>
+        
+        <div class="mobile-controls">
+            <button id="up-btn" class="control-btn">⬆️</button>
+            <div class="left-right-controls">
+                <button id="left-btn" class="control-btn">⬅️</button>
+                <button id="right-btn" class="control-btn">➡️</button>
+            </div>
+            <button id="down-btn" class="control-btn">⬇️</button>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            const scoreDisplay = document.getElementById('score');
+            const gameOverScreen = document.getElementById('game-over-screen');
+            const finalScoreDisplay = document.getElementById('final-score');
+            const restartButton = document.getElementById('restart-button');
+
+            // Mobile controls
+            const upBtn = document.getElementById('up-btn');
+            const downBtn = document.getElementById('down-btn');
+            const leftBtn = document.getElementById('left-btn');
+            const rightBtn = document.getElementById('right-btn');
+
+            const gridSize = 20; 
+            let snake = [{ x: 10, y: 10 }]; 
+            let food = {}; 
+            let direction = 'right'; 
+            let score = 0;
+            let gameInterval;
+            let gameSpeed = 150; 
+
+            // Colors for snake, food and neon glows
+            const SNAKE_COLOR = '#00ff00'; // Green
+            const SNAKE_GLOW_COLOR = 'rgba(0, 255, 0, 0.5)';
+            const FOOD_COLOR = '#ff00ff'; // Pink
+            const FOOD_GLOW_COLOR = 'rgba(255, 0, 255, 0.5)';
+
+            // --- Game Functions ---
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+
+                // Draw food with neon glow
+                ctx.fillStyle = FOOD_GLOW_COLOR;
+                ctx.shadowColor = FOOD_GLOW_COLOR;
+                ctx.shadowBlur = 10;
+                ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+                ctx.fillStyle = FOOD_COLOR;
+                ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+                ctx.shadowBlur = 0; // Reset shadow
+
+                // Draw snake with neon glow
+                snake.forEach(segment => {
+                    ctx.fillStyle = SNAKE_GLOW_COLOR;
+                    ctx.shadowColor = SNAKE_GLOW_COLOR;
+                    ctx.shadowBlur = 10;
+                    ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+                    ctx.fillStyle = SNAKE_COLOR;
+                    ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+                    ctx.shadowBlur = 0; // Reset shadow
+                });
+            }
+
+            function moveSnake() {
+                const head = { x: snake[0].x, y: snake[0].y };
+
+                switch (direction) {
+                    case 'up':
+                        head.y--;
+                        break;
+                    case 'down':
+                        head.y++;
+                        break;
+                    case 'left':
+                        head.x--;
+                        break;
+                    case 'right':
+                        head.x++;
+                        break;
+                }
+
+                // Check for collision with walls or self
+                if (
+                    head.x < 0 || head.x >= canvas.width / gridSize ||
+                    head.y < 0 || head.y >= canvas.height / gridSize ||
+                    checkSelfCollision(head)
+                ) {
+                    endGame();
+                    return;
+                }
+
+                snake.unshift(head); // Add new head
+
+                // Check for food
+                if (head.x === food.x && head.y === food.y) {
+                    score++;
+                    scoreDisplay.textContent = `Score: ${score}`;
+                    generateFood();
+                    // Optional: Increase speed gradually
+                    if (gameSpeed > 50) { // Don't get too fast
+                        gameSpeed -= 5;
+                        clearInterval(gameInterval);
+                        gameInterval = setInterval(gameLoop, gameSpeed);
+                    }
+                } else {
+                    snake.pop(); // Remove tail if no food eaten
+                }
+            }
+
+            function checkSelfCollision(head) {
+                for (let i = 1; i < snake.length; i++) {
+                    if (head.x === snake[i].x && head.y === snake[i].y) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            function generateFood() {
+                food = {
+                    x: Math.floor(Math.random() * (canvas.width / gridSize)),
+                    y: Math.floor(Math.random() * (canvas.height / gridSize))
+                };
+
+                // Ensure food does not spawn on snake
+                snake.forEach(segment => {
+                    if (segment.x === food.x && segment.y === food.y) {
+                        generateFood(); // Regenerate if collision
+                    }
+                });
+            }
+
+            function gameLoop() {
+                moveSnake();
+                draw();
+            }
+
+            function startGame() {
+                snake = [{ x: 10, y: 10 }];
+                direction = 'right';
+                score = 0;
+                gameSpeed = 150;
+                scoreDisplay.textContent = `Score: 0`;
+                gameOverScreen.classList.add('hidden');
+                generateFood();
+                if (gameInterval) clearInterval(gameInterval);
+                gameInterval = setInterval(gameLoop, gameSpeed);
+            }
+
+            function endGame() {
+                clearInterval(gameInterval);
+                finalScoreDisplay.textContent = score;
+                gameOverScreen.classList.remove('hidden');
+            }
+
+            // --- Event Listeners ---
+
+            // Keyboard Controls
+            document.addEventListener('keydown', e => {
+                switch (e.key) {
+                    case 'ArrowUp':
+                        if (direction !== 'down') direction = 'up';
+                        break;
+                    case 'ArrowDown':
+                        if (direction !== 'up') direction = 'down';
+                        break;
+                    case 'ArrowLeft':
+                        if (direction !== 'right') direction = 'left';
+                        break;
+                    case 'ArrowRight':
+                        if (direction !== 'left') direction = 'right';
+                        break;
+                }
+            });
+
+            // Mobile Controls
+            upBtn.addEventListener('click', () => { if (direction !== 'down') direction = 'up'; });
+            downBtn.addEventListener('click', () => { if (direction !== 'up') direction = 'down'; });
+            leftBtn.addEventListener('click', () => { if (direction !== 'right') direction = 'left'; });
+            rightBtn.addEventListener('click', () => { if (direction !== 'left') direction = 'right'; });
+
+
+            restartButton.addEventListener('click', startGame);
+
+            // Initial game start
+            startGame();
+        });
+    </script>
+</body>
+</html>
