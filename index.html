@@ -4,7 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neon Snake Game</title>
-    
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VFY823DN9S"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-VFY823DN9S');
+    </script>
     <style>
         /* CSS Styles */
         body {
@@ -67,7 +75,7 @@
             height: auto;
         }
 
-        /* Game Over Screen */
+        /* Game Over Screen 😟😟😟*/
         #game-over-screen {
             position: absolute;
             top: 0;
@@ -196,7 +204,7 @@
     </div>
 
     <script>
-        // JavaScript Logic
+        // JavaScript Logic👩🏽‍💻👩🏽‍💻👩🏽‍💻
         document.addEventListener('DOMContentLoaded', () => {
             const canvas = document.getElementById('gameCanvas');
             const ctx = canvas.getContext('2d');
@@ -282,7 +290,7 @@
                         break;
                 }
 
-                // Collision check
+                // Collision check💥💥💥
                 if (
                     head.x < 0 || head.x >= canvas.width / gridSize ||
                     head.y < 0 || head.y >= canvas.height / gridSize ||
@@ -390,7 +398,7 @@
                 }
             });
 
-            // Mobile Controls
+            // Mobile Controls🤳🏽🤳🏽🤳🏽
             upBtn.addEventListener('click', () => { if (direction !== 'down') direction = 'up'; });
             downBtn.addEventListener('click', () => { if (direction !== 'up') direction = 'down'; });
             leftBtn.addEventListener('click', () => { if (direction !== 'right') direction = 'left'; });
